@@ -5,7 +5,6 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-from zipfile import ZipFile
 
 
 @st.cache(suppress_st_warning=True, show_spinner=False)
@@ -109,23 +108,22 @@ def show_charts(charts):
 
 def main():
     st.title('Leads recommender')
-    fileup = st.file_uploader('Upload your portfolio here')
+    fileup = st.file_uploader('Faça o upload de seu portfólio')
 
     if fileup is not None:
         portfolio = pd.read_csv(fileup, index_col='id').drop(columns='Unnamed: 0')
         processed_portfolio = processed_market.reindex(portfolio.index)
         raw_leads, df_leads = recommender(processed_portfolio, model)
         save_leads(raw_leads, df_leads)
-        slider = st.slider('Number of leads:', min_value=10, max_value=df_leads.shape[0])
-        multi = st.multiselect('Showing columns:', tuple(df_leads.columns), list(df_leads.columns))
+        slider = st.slider('Número de leads exibidos:', min_value=10, max_value=df_leads.shape[0])
+        multi = st.multiselect('Colunas exibidas:', tuple(df_leads.columns), list(df_leads.columns))
         showing_leads = df_leads[multi].head(slider)
         st.dataframe(showing_leads)
 
-        st.subheader('Download the leads:')
-        st.markdown(get_table_download_link(showing_leads, 'Selected columns'), unsafe_allow_html=True)
-        st.markdown(get_table_download_link(df_leads.ID, 'Just IDs'), unsafe_allow_html=True)
-        st.markdown(get_table_download_link(raw_leads, 'Default'), unsafe_allow_html=True)
-        st.header('Data Visualization:')
+        st.subheader('Faça o download das recomendações:')
+        st.markdown(get_table_download_link(raw_leads, 'Arquivo completo'), unsafe_allow_html=True)
+        st.markdown(get_table_download_link(df_leads.ID, 'Somente IDs'), unsafe_allow_html=True)
+        st.header('Dashboard:')
         show_charts(build_charts(df_leads))
 
 if __name__ == '__main__':
