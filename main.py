@@ -15,7 +15,6 @@ def load_data():
 
 
 def train_model():
-
     model_knn = NearestNeighbors(algorithm='ball_tree', n_neighbors=6, n_jobs=-1)
     model_knn.fit(processed_market)
 
@@ -118,7 +117,7 @@ def run(myportfolio):
     raw_leads.to_csv('output/raw_leads.csv')
     df_leads.to_csv('output/leads.csv')
     with open('output/leads_id.txt', 'w') as f:
-        for item in df_leads.index:
+        for item in df_leads['ID']:
             f.write("%s\n" % item)
     end = time.time()
 

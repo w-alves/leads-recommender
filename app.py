@@ -5,6 +5,7 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from zipfile import ZipFile
 
 
 @st.cache(suppress_st_warning=True, show_spinner=False)
@@ -53,16 +54,24 @@ def get_table_download_link(df, msg):
     out: href string
     """
     csv = df.to_csv(index=False)
-    b64 = base64.b64encode(
-        csv.encode()
-    ).decode()  # some strings <-> bytes conversions necessary here
+    b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+
     return f'<a href="data:file/csv;base64,{b64}" download="{msg}.csv">{msg}</a>'
+
+
+def save_leads(raw_leads, df_leads):
+    raw_leads.to_csv('output/raw_leads.csv')
+    df_leads.to_csv('output/leads.csv')
+    with open('output/leads_id.txt', 'w') as f:
+        for item in df_leads['ID']:
+            f.write("%s\n" % item)
 
 
 def build_charts(df):
     sns.set(style='whitegrid')
     sns.set(palette='Reds_r')
-    os.mkdir('output')
+    if not os.path.exists('output'):
+        os.mkdir('output')
     fig1, axes = plt.subplots(1, 2, figsize=(10, 5))
     sns.kdeplot(df['FATURAMENTO ESTIMADO'], ax=axes[0], shade=True, bw=2, legend=False)
     axes[0].set(xlabel='Faturamento estimado')
@@ -106,6 +115,7 @@ def main():
         portfolio = pd.read_csv(fileup, index_col='id').drop(columns='Unnamed: 0')
         processed_portfolio = processed_market.reindex(portfolio.index)
         raw_leads, df_leads = recommender(processed_portfolio, model)
+        save_leads(raw_leads, df_leads)
         slider = st.slider('Number of leads:', min_value=10, max_value=df_leads.shape[0])
         multi = st.multiselect('Showing columns:', tuple(df_leads.columns), list(df_leads.columns))
         showing_leads = df_leads[multi].head(slider)
