@@ -21,6 +21,7 @@ def load_model():
         model = pickle.load(f)
     return model
 
+
 def recommender(portfolio, model):
     # Finds the neighbors for each companie of portfolio
     dist, indices = model.kneighbors(portfolio.dropna())
