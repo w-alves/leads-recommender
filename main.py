@@ -107,7 +107,10 @@ def run(myportfolio):
     start = time.time()
 
     path = 'portfolios/'+myportfolio
-    portfolio = pd.read_csv(path, index_col='id').drop(columns='Unnamed: 0')
+    try:
+        portfolio = pd.read_csv(path, index_col='id').drop(columns='Unnamed: 0')
+    except:
+        print('O portfólio selecionado não segue o padrão necessário. Leia a documentação para saber sobre esse padrão')
     processed_portfolio = processed_market.reindex(portfolio.index)
 
     print(f'Gerando recomendações para {myportfolio}...')

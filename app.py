@@ -111,20 +111,33 @@ def main():
     fileup = st.file_uploader('Faça o upload de seu portfólio')
 
     if fileup is not None:
-        portfolio = pd.read_csv(fileup, index_col='id').drop(columns='Unnamed: 0')
-        processed_portfolio = processed_market.reindex(portfolio.index)
-        raw_leads, df_leads = recommender(processed_portfolio, model)
-        save_leads(raw_leads, df_leads)
-        slider = st.slider('Número de leads exibidos:', min_value=10, max_value=df_leads.shape[0])
-        multi = st.multiselect('Colunas exibidas:', tuple(df_leads.columns), list(df_leads.columns))
-        showing_leads = df_leads[multi].head(slider)
-        st.dataframe(showing_leads)
+        try:
+            portfolio = pd.read_csv(fileup, index_col='id').drop(columns='Unnamed: 0')
+            flag = 1
+        except:
+            st.error('O portfólio selecionado não segue o padrão necessário, adeque-o e tente novamente. \n'
+                     'Para saber mais, consulte a documentação.')
+            flag = 0
 
-        st.subheader('Faça o download das recomendações:')
-        st.markdown(get_table_download_link(raw_leads, 'Arquivo completo'), unsafe_allow_html=True)
-        st.markdown(get_table_download_link(df_leads.ID, 'Somente IDs'), unsafe_allow_html=True)
-        st.header('Dashboard:')
-        show_charts(build_charts(df_leads))
+        if flag == 1:
+            processed_portfolio = processed_market.reindex(portfolio.index)
+
+            raw_leads, df_leads = recommender(processed_portfolio, model)
+            save_leads(raw_leads, df_leads)
+
+            slider = st.slider('Número de leads exibidos:', min_value=10, max_value=df_leads.shape[0])
+            multi = st.multiselect('Colunas exibidas:', tuple(df_leads.columns), list(df_leads.columns))
+            showing_leads = df_leads[multi].head(slider)
+
+            st.dataframe(showing_leads)
+
+            st.subheader('Faça o download das recomendações:')
+            st.markdown(get_table_download_link(raw_leads, 'Arquivo completo'), unsafe_allow_html=True)
+            st.markdown(get_table_download_link(df_leads.ID, 'Somente IDs'), unsafe_allow_html=True)
+
+            st.header('Dashboard:')
+            st.text('Visualize dados importantes sobre as empresas recomendadas:')
+            show_charts(build_charts(df_leads))
 
 if __name__ == '__main__':
     usefull_cols = ['sg_uf', 'nm_meso_regiao', 'nm_micro_regiao', 'fl_rm', 'setor', 'nm_segmento',
