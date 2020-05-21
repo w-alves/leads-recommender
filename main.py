@@ -7,6 +7,7 @@ import fire
 import time
 import os
 
+
 def load_data():
     raw_market = pd.read_csv('data/estaticos_market.csv', index_col='id')
     processed_market = pd.read_csv('data/processed_market.csv', index_col='id')
@@ -92,21 +93,23 @@ def build_charts(df):
 
 
 def run(myportfolio):
-    print('Treinando o modelo...')
-    start = time.time()
     if not os.path.exists('model/leads-recommender-model.pkl'):
+        start = time.time()
+        print('Treinando o modelo...')
         train_model()
-    end = time.time()
-    print('Treinamento finalizado.')
-    print(f'Tempo gasto treinando o modelo: {round(end-start, 3)} segundos')
-    print('=' * 50)
+        end = time.time()
+        print('Treinamento finalizado.')
+        print(f'Tempo gasto treinando o modelo: {round(end-start, 3)} segundos')
+        print('=' * 50)
 
     model = load_model()
 
     start = time.time()
+
     path = 'portfolios/'+myportfolio
     portfolio = pd.read_csv(path, index_col='id').drop(columns='Unnamed: 0')
     processed_portfolio = processed_market.reindex(portfolio.index)
+
     print(f'Gerando recomendações para {myportfolio}...')
     raw_leads, df_leads = recommender(processed_portfolio, model)
 
@@ -119,6 +122,7 @@ def run(myportfolio):
     with open('output/leads_id.txt', 'w') as f:
         for item in df_leads['ID']:
             f.write("%s\n" % item)
+
     end = time.time()
 
     print('='*50)
