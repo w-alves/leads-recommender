@@ -4,7 +4,7 @@
 
 There is two alternative ways to use this service. Let's check:
 
-##### Using a executable: 
+**Using a executable:** 
 
 1. Download the installer
 
@@ -18,7 +18,7 @@ There is two alternative ways to use this service. Let's check:
 
 Done that, a page will open in our default browser and you can use the application. In the first run, the model will be trained, but in others sections this will not be necessary. Now, just upload your portfolio (make sure that it meets the _necessary standards_) and all the results will be at the project directory in a "output" named folder.
 
-##### Via command prompt:
+**Via command prompt:**
 
 1. Clone this repository
 
@@ -86,7 +86,6 @@ Note: all companies (ids) in the portfolios are contained in the Market (populat
 
 Link to download the market, portfolio 1, portfolio 2 and portfolio 3 datasets: [bit.ly/leadsrecommender-data](bit.ly/leadsrecommender-data)
 
----
 
 ### 
 
