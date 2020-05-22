@@ -5,6 +5,7 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from sklearn.neighbors import NearestNeighbors
 
 
 @st.cache(suppress_st_warning=True, show_spinner=False)
@@ -13,6 +14,17 @@ def load_data():
     processed_market = pd.read_csv('data/processed_market.csv', index_col='id')
 
     return raw_market, processed_market
+
+
+def train_model():
+    model_knn = NearestNeighbors(algorithm='ball_tree', n_neighbors=6, n_jobs=-1)
+    model_knn.fit(processed_market)
+
+    if not os.path.exists('model'):
+        os.mkdir('model')
+
+    with open('model/leads-recommender-model.pkl', 'wb') as file:
+        pickle.dump(model_knn, file)
 
 
 @st.cache(suppress_st_warning=True, allow_output_mutation=True)
@@ -120,30 +132,34 @@ def main():
             flag = 0
 
         if flag == 1:
-            processed_portfolio = processed_market.reindex(portfolio.index)
+            st.success('Recomendação concluída! Os resultados estão salvos na pasta "output".')
 
+            processed_portfolio = processed_market.reindex(portfolio.index)
             raw_leads, df_leads = recommender(processed_portfolio, model)
             save_leads(raw_leads, df_leads)
 
+            st.header('Dashboard:')
             slider = st.slider('Número de leads exibidos:', min_value=10, max_value=df_leads.shape[0])
             multi = st.multiselect('Colunas exibidas:', tuple(df_leads.columns), list(df_leads.columns))
             showing_leads = df_leads[multi].head(slider)
 
             st.dataframe(showing_leads)
 
-            st.subheader('Faça o download das recomendações:')
-            st.markdown(get_table_download_link(raw_leads, 'Arquivo completo'), unsafe_allow_html=True)
-            st.markdown(get_table_download_link(df_leads.ID, 'Somente IDs'), unsafe_allow_html=True)
-
-            st.header('Dashboard:')
             st.text('Visualize dados importantes sobre as empresas recomendadas:')
             show_charts(build_charts(df_leads))
+
 
 if __name__ == '__main__':
     usefull_cols = ['sg_uf', 'nm_meso_regiao', 'nm_micro_regiao', 'fl_rm', 'setor', 'nm_segmento',
                     'de_natureza_juridica',
                     'de_nivel_atividade', 'idade_empresa_anos', 'vl_faturamento_estimado_aux']
     raw_market, processed_market = load_data()
+
+    if not os.path.exists('model/leads-recommender-model.pkl'):
+        with st.spinner('Parece que é a primeira vez que você está executando o Leads recommender. Vamos treinar o modelo...'):
+            train_model()
+        st.success('Modelo treinado! Nas próximas execuções essa tarefa não precisará ser realizada novamente.')
+
     model = load_model()
     main()
 
