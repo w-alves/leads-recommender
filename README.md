@@ -16,7 +16,7 @@ There is two alternative ways to use this service. Let's check:
 
 3. Open Leads Recommender.exe
 
-Done that, a page will open in our default browser and you can use the application. In the first run, the model will be trained, but in others sections this will not be necessary. Now, just upload your portfolio (make sure that it meets the _necessary standards_) and all the results will be at the project directory in a "output" named folder.
+Done that, a page will open in our default browser and you can use the application. In the first run, the model will be trained, but in others sections this will not be necessary. In the application, just upload your portfolio (make sure that it meets the _necessary standards_) and all the results will be at the project directory in a "output" named folder.
 
 **Via command prompt:**
 
