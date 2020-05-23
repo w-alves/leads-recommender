@@ -6,7 +6,9 @@ This project is about the development of a product to provide an automated servi
 
 ### **Prerequisites**
 
-To use this application you must have [Python](https://www.python.org/downloads/) installed in your OS. Also, you must have installed the external packages listed at ```requirements.txt```, if you are running via our executable they will automatically be installed and checked before the start.  
+To use this application you must have [Python](https://www.python.org/downloads/) installed in your OS. Also, you must have installed the external packages listed at ```requirements.txt```, if you are running via our executable they will automatically be installed and checked before the start. 
+
+**Portfolio necessary standards**: the portfolio should at least contain a column called 'ID' with the IDs of the companies that are customers of yours and is located at the 'portfolios' folder.
 
 ### **Usage**
 
@@ -42,13 +44,15 @@ Done that, a page will open in our default browser and you can use the applicati
 
 3. Copy your portfolio file to the 'portfolios' folder.
 
-4. Install requirements.txt
+4. Open the prompt at the project directory.
+
+5. Install requirements.txt
 
    ```
-   pip install -r requirements.txt
+   $ pip install -r requirements.txt
    ```
 
-5. Run via command prompt 
+6. Run via command prompt 
 
    ```
    $ python main.py --myportfolio "<insert here your portfolio name>.csv"
@@ -57,10 +61,6 @@ Done that, a page will open in our default browser and you can use the applicati
    >  Make sure that the portfolio meets the _necessary standards_.
 
 In the first run, the model will be trained, but in others sections this will not be necessary. All the results will be in "output" folder.
-
-> **Portfolio necessary standards**: 
->
-> The portfolio should at least contain a column called 'ID' with the IDs of the companies that are customers of yours and is located at the 'portfolios' folder.
 
 ## About the project
 
