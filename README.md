@@ -44,13 +44,15 @@ Done that, a page will open in our default browser and you can use the applicati
 
 3. Copy your portfolio file to the 'portfolios' folder.
 
-4. Install requirements.txt
+4. Open the prompt at the project directory.
+
+5. Install requirements.txt
 
    ```
-   pip install -r requirements.txt
+   $ pip install -r requirements.txt
    ```
 
-5. Run via command prompt 
+6. Run via command prompt 
 
    ```
    $ python main.py --myportfolio "<insert here your portfolio name>.csv"
