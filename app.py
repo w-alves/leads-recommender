@@ -1,116 +1,11 @@
+import base64
+import os
 import streamlit as st
 import pandas as pd
-import base64
-import pickle
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
-from sklearn.neighbors import NearestNeighbors
-
-
-@st.cache(suppress_st_warning=True, show_spinner=False)
-def load_data():
-    raw_market = pd.read_csv('data/estaticos_market.csv', index_col='id')
-    processed_market = pd.read_csv('data/processed_market.csv', index_col='id')
-
-    return raw_market, processed_market
-
-
-def train_model():
-    model_knn = NearestNeighbors(algorithm='ball_tree', n_neighbors=6, n_jobs=-1)
-    model_knn.fit(processed_market)
-
-    if not os.path.exists('model'):
-        os.mkdir('model')
-
-    with open('model/leads-recommender-model.pkl', 'wb') as file:
-        pickle.dump(model_knn, file)
-
-
-@st.cache(suppress_st_warning=True, allow_output_mutation=True)
-def load_model():
-    with open('model/leads-recommender-model.pkl', 'rb') as f:
-        model = pickle.load(f)
-    return model
-
-
-def recommender(portfolio, model):
-    # Finds the neighbors for each companie of portfolio
-    dist, indices = model.kneighbors(portfolio.dropna())
-
-    # Build a dataframe with dist and indices
-    leads = pd.DataFrame(list(zip(processed_market.index[indices.flatten()], dist.flatten())), columns=['COMPANY ID', 'DISTANCE'])
-
-    # Sort values by distance
-    leads = leads.sort_values('DISTANCE').set_index('COMPANY ID')
-
-    # Remove duplicates and companies already included on portfolio
-    leads = leads.loc[~leads.index.duplicated(keep='first')]
-    leads = leads.drop([x for x in leads.index if x in portfolio.index])
-
-    # Build a dataframe with usefull cols and change the index for the rank
-    raw_leads = raw_market.reindex(leads.index)
-
-    df_leads = raw_market[usefull_cols].reindex(leads.index)
-    df_leads.reset_index(level=0, inplace=True) # Reset index
-    df_leads.index = pd.RangeIndex(1, df_leads.shape[0]+1) # Set start at 1
-    df_leads.columns = ['ID', 'UF', 'MESO REGIAO', 'MICRO REGIAO', 'RM', 'SETOR', 'SEGMENTO', 'NATUREZA JURIDICA', 'NIVEL DE ATIVIDADE', 'IDADE', 'FATURAMENTO ESTIMADO']
-
-    return raw_leads, df_leads
-
-
-def get_table_download_link(df, msg):
-    """Generates a link allowing the data in a given panda dataframe to be downloaded
-    in:  dataframe
-    out: href string
-    """
-    csv = df.to_csv(index=False)
-    b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
-
-    return f'<a href="data:file/csv;base64,{b64}" download="{msg}.csv">{msg}</a>'
-
-
-def save_leads(raw_leads, df_leads):
-    raw_leads.to_csv('output/raw_leads.csv')
-    df_leads.to_csv('output/leads.csv')
-    with open('output/leads_id.txt', 'w') as f:
-        for item in df_leads['ID']:
-            f.write("%s\n" % item)
-
-
-def build_charts(df):
-    sns.set(style='whitegrid')
-    sns.set(palette='Reds_r')
-    if not os.path.exists('output'):
-        os.mkdir('output')
-    fig1, axes = plt.subplots(1, 2, figsize=(10, 5))
-    sns.kdeplot(df['FATURAMENTO ESTIMADO'], ax=axes[0], shade=True, bw=2, legend=False)
-    axes[0].set(xlabel='Faturamento estimado')
-    axes[0].set_title('Distribuição do faturamento estimado')
-    sns.kdeplot(df['IDADE'], ax=axes[1], shade=True, legend=False)
-    axes[1].set_title('Distribuição das idades')
-    fig1.tight_layout()
-    fig1.savefig('output/dist_faturamento_idade.png', bbox_inches='tight')
-
-    fig2, axes = plt.subplots(1, 2, figsize=(10, 5))
-    sns.countplot(df['UF'], ax=axes[0])
-    axes[0].set_title('Número de empresas por estado')
-    axes[0].set(xlabel='', ylabel='')
-    sns.countplot(df['SETOR'], ax=axes[1])
-    axes[1].set_xticklabels(axes[1].get_xticklabels(), rotation = 45, ha="right")
-    axes[1].set_title('Número de empresas por setor')
-    axes[1].set(xlabel='', ylabel='')
-    fig2.tight_layout()
-    fig2.savefig('output/count_uf_setor.png', bbox_inches='tight')
-
-    fig3, axes = plt.subplots(figsize=(15, 10))
-    sns.countplot(y=df['SEGMENTO'], color='lightcoral')
-    axes.set(xlabel='')
-    axes.set_title('Número de empresas por segmento')
-    fig3.tight_layout()
-    fig3.savefig('output/count_segmento.png', bbox_inches='tight')
-
-    return fig1, fig2, fig3
+from src.features.build_features import build_portfolio, load_data
+from src.models.model import load_model, train_model
+from src.models.recommender import build_leads_df, save_leads, recommender
+from src.visualization.visualize import build_charts
 
 
 def show_charts(charts):
@@ -119,14 +14,23 @@ def show_charts(charts):
 
 
 def main():
+    raw_market, processed_market = load_data()
+
+    if not os.path.exists('model/leads-recommender-model.pkl'):
+        with st.spinner('Não encontremos o modelo pré-treinado no seu diretório, vamos treiná-lo novamente...'):
+            train_model()
+        st.success('Modelo treinado! Nas próximas execuções essa tarefa não precisará ser realizada novamente.')
+
     st.title('Leads recommender')
     fileup = st.file_uploader('Faça o upload de seu portfólio')
 
+    model = load_model()
+
     if fileup is not None:
         try:
-            portfolio = pd.read_csv(fileup, index_col='id').drop(columns='Unnamed: 0')
+            portfolio = pd.read_csv(fileup, index_col='id')
             flag = 1
-        except:
+        except ValueError:
             st.error('O portfólio selecionado não segue o padrão necessário, adeque-o e tente novamente. \n'
                      'Para saber mais, consulte a documentação.')
             flag = 0
@@ -134,8 +38,9 @@ def main():
         if flag == 1:
             st.success('Recomendação concluída! Os resultados estão salvos na pasta "output".')
 
-            processed_portfolio = processed_market.reindex(portfolio.index)
-            raw_leads, df_leads = recommender(processed_portfolio, model)
+            processed_portfolio = build_portfolio(processed_market, portfolio)
+            leads = recommender(processed_portfolio, processed_market, model)
+            raw_leads, df_leads = build_leads_df(raw_market, leads)
             save_leads(raw_leads, df_leads)
 
             st.header('Dashboard:')
@@ -150,16 +55,4 @@ def main():
 
 
 if __name__ == '__main__':
-    usefull_cols = ['sg_uf', 'nm_meso_regiao', 'nm_micro_regiao', 'fl_rm', 'setor', 'nm_segmento',
-                    'de_natureza_juridica',
-                    'de_nivel_atividade', 'idade_empresa_anos', 'vl_faturamento_estimado_aux']
-    raw_market, processed_market = load_data()
-
-    if not os.path.exists('model/leads-recommender-model.pkl'):
-        with st.spinner('Parece que é a primeira vez que você está executando o Leads recommender. Vamos treinar o modelo...'):
-            train_model()
-        st.success('Modelo treinado! Nas próximas execuções essa tarefa não precisará ser realizada novamente.')
-
-    model = load_model()
     main()
-
