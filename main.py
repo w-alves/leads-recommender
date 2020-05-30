@@ -32,8 +32,8 @@ def run(myportfolio):
     processed_portfolio = ft.build_portfolio(processed_market, portfolio)
 
     print(f'Gerando recomendações para {myportfolio}...')
-    leads = rec.recommender(processed_portfolio, processed_market, model)
-    raw_leads, df_leads = rec.build_leads_df(raw_market, leads)
+    preleads = rec.recommender(processed_portfolio, processed_market, model)
+    raw_leads, df_leads = rec.build_leads_df(raw_market, processed_portfolio, preleads)
 
     print('Gerando gráficos sobre as recomendações...')
     vis.build_charts(df_leads)

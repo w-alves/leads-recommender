@@ -39,8 +39,8 @@ def main():
             st.success('Recomendação concluída! Os resultados estão salvos na pasta "output".')
 
             processed_portfolio = build_portfolio(processed_market, portfolio)
-            leads = recommender(processed_portfolio, processed_market, model)
-            raw_leads, df_leads = build_leads_df(raw_market, leads)
+            preleads = recommender(processed_portfolio, processed_market, model)
+            raw_leads, df_leads = build_leads_df(raw_market, processed_portfolio,preleads)
             save_leads(raw_leads, df_leads)
 
             st.header('Dashboard:')
