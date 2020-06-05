@@ -1,4 +1,5 @@
 # Leads Recommender
+![Logo](https://i.imgur.com/4PnivGd.png)
 
 This project is about the development of a product to provide an automated service that recommends leads to a user, given his current list of customers (portfolio).
 
