@@ -2,8 +2,9 @@ import base64
 import os
 import streamlit as st
 import pandas as pd
-from src.features.build_features import build_portfolio, load_data
+from src.features.build_features import build_portfolio, process_leads, load_data
 from src.models.model import load_model, train_model
+from src.models.recommender import colorize_df
 from src.models.recommender import build_leads_df, save_leads, recommender
 from src.visualization.visualize import build_charts
 
@@ -36,22 +37,23 @@ def main():
             flag = 0
 
         if flag == 1:
-            st.success('Recomendação concluída! Os resultados estão salvos na pasta "output".')
+            with st.spinner('Gerando recomendações...'):
+                processed_portfolio = build_portfolio(processed_market, portfolio)
+                leads = recommender(processed_portfolio, processed_market, model)
 
-            processed_portfolio = build_portfolio(processed_market, portfolio)
-            preleads = recommender(processed_portfolio, processed_market, model)
-            raw_leads, df_leads = build_leads_df(raw_market, processed_portfolio,preleads)
-            save_leads(raw_leads, df_leads)
+                processed_leads = process_leads(leads, processed_market)
+                raw_leads, df_leads = build_leads_df(raw_market, leads)
+                save_leads(raw_leads, df_leads)
 
-            st.header('Dashboard:')
-            slider = st.slider('Número de leads exibidos:', min_value=10, max_value=df_leads.shape[0])
-            multi = st.multiselect('Colunas exibidas:', tuple(df_leads.columns), list(df_leads.columns))
-            showing_leads = df_leads[multi].head(slider)
+                df_leads_colorized = colorize_df(df_leads, processed_portfolio, processed_leads)
 
-            st.dataframe(showing_leads)
+                st.header('Dashboard:')
+                st.dataframe(df_leads_colorized)
 
-            st.text('Visualize dados importantes sobre as empresas recomendadas:')
-            show_charts(build_charts(df_leads))
+                st.success('Recomendação concluída! Os resultados estão salvos na pasta "output".')
+
+                st.subheader('Visualize dados importantes sobre as empresas recomendadas:')
+                show_charts(build_charts(df_leads))
 
 
 if __name__ == '__main__':

@@ -35,6 +35,10 @@ def process_market(df):
     return df_processed
 
 
+def process_leads(leads, processed_market):
+    return processed_market.reindex(leads.index)
+
+
 def check_data():
     if not os.path.exists('data/estaticos_market.csv'):
         print('\033[31m'+"ERRO: O arquivo 'estaticos_market.csv' não foi encontrado."+'\033[0;0m')

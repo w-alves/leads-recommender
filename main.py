@@ -6,6 +6,7 @@ import src.features.build_features as ft
 import src.models.model as mdl
 import src.models.recommender as rec
 import src.visualization.visualize as vis
+from src.evaluation.evaluate import evaluate_knn
 
 
 def read_portfolio(path):
@@ -32,8 +33,9 @@ def run(myportfolio):
     processed_portfolio = ft.build_portfolio(processed_market, portfolio)
 
     print(f'Gerando recomendações para {myportfolio}...')
-    preleads = rec.recommender(processed_portfolio, processed_market, model)
-    raw_leads, df_leads = rec.build_leads_df(raw_market, processed_portfolio, preleads)
+    leads = rec.recommender(processed_portfolio, processed_market, model)
+    raw_leads, df_leads = rec.build_leads_df(raw_market, leads)
+    processed_leads = ft.process_leads(leads, processed_market)
 
     print('Gerando gráficos sobre as recomendações...')
     vis.build_charts(df_leads)
@@ -45,6 +47,12 @@ def run(myportfolio):
 
     print('='*50)
     print(f'Fim do processo. Tempo gasto: {round(end-start, 3)} segundos')
+    print('=' * 50)
+    extreme, high, medium = evaluate_knn(processed_portfolio, processed_leads)
+    print(f'{round(extreme * 100, 1)}% dos resultados como EXTREMAMENTE RECOMENDADOS')
+    print(f'{round(high * 100, 1)}% dos resultados como ALTAMENTE RECOMENDADOS')
+    print(f'{round(medium * 100, 1)}% dos resultados como MEDIAMENTE RECOMENDADOS')
+    print('=' * 50)
     print('Os resultados foram salvos na pasta "output".')
 
 

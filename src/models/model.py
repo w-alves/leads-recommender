@@ -1,3 +1,4 @@
+import warnings
 import os
 import time
 import streamlit as st
@@ -5,10 +6,13 @@ import pickle
 from sklearn.neighbors import NearestNeighbors
 import src.features.build_features as ft
 
+warnings.filterwarnings('ignore')
+warnings.simplefilter('ignore')
+
 
 def train_model():
     _, processed_market = ft.load_data()
-    model_knn = NearestNeighbors(algorithm='ball_tree', n_neighbors=100, n_jobs=-1)
+    model_knn = NearestNeighbors(algorithm='brute', metric='sokalsneath', n_neighbors=3, n_jobs=-1)
     model_knn.fit(processed_market)
 
     if not os.path.exists('model'):

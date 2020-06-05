@@ -1,4 +1,5 @@
 import pandas as pd
+from src.evaluation.evaluate import similarity_metric
 
 usefull_cols = ['sg_uf', 'nm_meso_regiao', 'nm_micro_regiao', 'fl_rm', 'setor', 'nm_segmento',
                 'de_natureza_juridica', 'de_nivel_atividade', 'idade_empresa_anos', 'vl_faturamento_estimado_aux']
@@ -9,28 +10,22 @@ def recommender(processed_portfolio, processed_market, model):
     dist, indices = model.kneighbors(processed_portfolio.dropna())
 
     # Build a dataframe with dist and indices
-    preleads = pd.DataFrame(list(zip(processed_market.index[indices.flatten()], dist.flatten())),
+    leads = pd.DataFrame(list(zip(processed_market.index[indices.flatten()], dist.flatten())),
                          columns=['COMPANY ID', 'DISTANCE'])
 
     # Sort values by distance
-    preleads = preleads.sort_values('DISTANCE').set_index('COMPANY ID')
+    leads = leads.sort_values('DISTANCE').set_index('COMPANY ID')
 
     # Remove duplicates and companies already included in portfolio
-    preleads = preleads.loc[~preleads.index.duplicated(keep='first')]
-    preleads = preleads.drop([x for x in preleads.index if x in processed_portfolio.index])
+    leads = leads.loc[~leads.index.duplicated(keep='first')]
+    leads = leads.drop([x for x in leads.index if x in processed_portfolio.index])
 
-    return preleads
+    return leads
 
 
-def build_leads_df(raw_market, portfolio, preleads):
-    # Build a raw portfolio
-    raw_portfolio = raw_market.reindex(portfolio.index)
-
+def build_leads_df(raw_market, leads):
     # Build a raw leads dataframe
-    raw_leads = raw_market.reindex(preleads.index)
-
-    # Remove recommendations if nm_segmento do not included at original portfolio
-    raw_leads = raw_leads[raw_leads['nm_segmento'].isin(raw_portfolio['nm_segmento'].unique())]
+    raw_leads = raw_market.reindex(leads.index)
 
     # Build leads dataframe with selected columns
     df_leads = raw_market[usefull_cols].reindex(raw_leads.index)
@@ -40,6 +35,25 @@ def build_leads_df(raw_market, portfolio, preleads):
                         'NATUREZA JURIDICA', 'NIVEL DE ATIVIDADE', 'IDADE', 'FATURAMENTO ESTIMADO']
 
     return raw_leads, df_leads
+
+
+def color_reliability(val):
+    if val == 'EXTREMA':
+        color='#1f7a1f'
+        return f'background-color: {color}'
+    elif val == 'ALTA':
+        color='#85e085'
+        return f'background-color: {color}'
+    elif val == 'MÉDIA':
+        color='#d8ebb5'
+        return f'background-color: {color}'
+    else:
+        pass
+
+
+def colorize_df(df, processed_portfolio, processed_leads):
+    df['CONFIABILIDADE'] = similarity_metric(processed_portfolio, processed_leads)
+    return df.style.applymap(color_reliability, subset=['CONFIABILIDADE'])
 
 
 def save_leads(raw_leads, df_leads):
