@@ -11,6 +11,8 @@ warnings.simplefilter('ignore')
 
 
 def train_model():
+    """Train NearestNeighbors model, using brute force algorithm and sokalsneath metric."""
+
     _, processed_market = ft.load_data()
     model_knn = NearestNeighbors(algorithm='brute', metric='sokalsneath', n_neighbors=3, n_jobs=-1)
     model_knn.fit(processed_market)
@@ -24,12 +26,15 @@ def train_model():
 
 @st.cache(suppress_st_warning=True, show_spinner=False, allow_output_mutation=True)
 def load_model():
+    """Load model in memory"""
+
     with open('model/leads-recommender-model.pkl', 'rb') as f:
         model = pickle.load(f)
     return model
 
 
 def check_model():
+    """Check if model exists on model folder, if does not, call train_model function"""
     if not os.path.exists('model/leads-recommender-model.pkl'):
         start = time.time()
         print('Não encontremos o modelo pré-treinado no seu diretório, vamos treiná-lo novamente...')

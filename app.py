@@ -1,11 +1,10 @@
-import base64
 import os
 import streamlit as st
 import pandas as pd
 from src.features.build_features import build_portfolio, process_leads, load_data
 from src.models.model import load_model, train_model
 from src.models.recommender import colorize_df
-from src.models.recommender import build_leads_df, save_leads, recommender
+from src.models.recommender import build_leads_df, save_leads, generate_leads
 from src.visualization.visualize import build_charts
 
 
@@ -39,7 +38,7 @@ def main():
         if flag == 1:
             with st.spinner('Gerando recomendações...'):
                 processed_portfolio = build_portfolio(processed_market, portfolio)
-                leads = recommender(processed_portfolio, processed_market, model)
+                leads = generate_leads(processed_portfolio, processed_market, model)
 
                 processed_leads = process_leads(leads, processed_market)
                 raw_leads, df_leads = build_leads_df(raw_market, leads)

@@ -7,6 +7,8 @@ import streamlit as st
 
 @st.cache(suppress_st_warning=True, show_spinner=False, allow_output_mutation=True)
 def load_data():
+    """Load raw market and processed market in memory."""
+
     raw_market = pd.read_csv('data/estaticos_market.csv', index_col='id')
     processed_market = pd.read_csv('data/processed_market.csv', index_col='id')
 
@@ -14,10 +16,21 @@ def load_data():
 
 
 def build_portfolio(processed_market, portfolio):
+    """Build a processed portfolio by reindex processed_market dataframe"""
+
     return processed_market.reindex(portfolio.index)
 
 
 def process_market(df):
+    """One-hot encode the catecorigal columns and scale continuous
+
+    Args:
+        df (pandas.core.frame.DataFrame): The market dataframe.
+
+    Returns:
+        A processed/encoded version of the inputed dataframe.
+    """
+
     df = df.set_index('id').drop(columns='Unnamed: 0')
 
     threshold = 0.70

@@ -1,11 +1,18 @@
-import numpy as np
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import mean_absolute_error
 from scipy.spatial.distance import cdist
 
 
 def similarity_metric(processed_portfolio, processed_leads):
-    # Count how many recommended leads have 95% or more of similarity with  at least one company of portfolio
+    """Find the similarity level of a recommended company with a company
+    that is already included in original portfolio.
+
+    Args:
+        processed_portfolio (pandas.core.frame.DataFrame): Processed portfolio dataframe.
+        processed_leads (pandas.core.frame.DataFrame): Processed leads dataframe.
+
+    Returns:
+        A list with the maximum similarity level found for each lead in processed_leads.
+    """
+
     reliability_list = []
 
     for lead in processed_leads.values:
@@ -22,6 +29,19 @@ def similarity_metric(processed_portfolio, processed_leads):
 
 
 def evaluate_knn(processed_portfolio, processed_leads):
+    """Call Similarity_metric functions and calculates the
+    percentage of each similarity level.
+
+    Args:
+        processed_portfolio (pandas.core.frame.DataFrame): Processed portfolio dataframe.
+        processed_leads (pandas.core.frame.DataFrame): Processed leads dataframe.
+
+    Returns:
+        Percentage of recommended companies classified as EXTREMELY RECOMMENDED
+        Percentage of recommended companies classified as HIGHLY RECOMMENDED
+        Percentage of recommended companies classified as MEDIUM RECOMMENDED
+    """
+
     reliability_list = similarity_metric(processed_portfolio, processed_leads)
 
     extreme_reliability = reliability_list.count('EXTREMA') / processed_leads.shape[0]

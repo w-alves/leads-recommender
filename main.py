@@ -33,7 +33,7 @@ def run(myportfolio):
     processed_portfolio = ft.build_portfolio(processed_market, portfolio)
 
     print(f'Gerando recomendações para {myportfolio}...')
-    leads = rec.recommender(processed_portfolio, processed_market, model)
+    leads = rec.generate_leads(processed_portfolio, processed_market, model)
     raw_leads, df_leads = rec.build_leads_df(raw_market, leads)
     processed_leads = ft.process_leads(leads, processed_market)
 

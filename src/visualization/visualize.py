@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 
 def build_charts(df):
+    """Generate, save and return charts."""
+
     sns.set(style='whitegrid')
     sns.set(palette='Reds_r')
 
