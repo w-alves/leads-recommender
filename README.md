@@ -7,7 +7,8 @@ This project is about the development of a product to provide an automated servi
 
 ### **Prerequisites**
 
-To use this application you must have [Python](https://www.python.org/downloads/) installed in your OS. Also, you must have installed the external packages listed at ```requirements.txt```, if you are running via our executable they will automatically be installed and checked before the start. 
+To use this application you must have [Python](https://www.python.org/downloads/) installed in your OS and you must have installed the external packages listed at ```requirements.txt```. 
+However, if you are running via our executable, the packages will automatically be checked by the Installer.
 
 **Portfolio necessary standards**: the portfolio should at least contain a column called 'ID' with the IDs of the companies that are customers of yours and is located at the 'portfolios' folder.
 
@@ -20,7 +21,7 @@ There is two alternative ways to use this service. Let's check:
 1. Download the installer
 
    ```
-   https://bit.ly/leadsrecommenderinstaller
+   https://w-alves.github.io/assets/LeadsRecommenderInstaller.exe
    ```
 
 2. Execute it and choose a directory to extract the files
