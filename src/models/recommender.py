@@ -82,6 +82,9 @@ def colorize_df(df, processed_portfolio, processed_leads):
 def save_leads(raw_leads, df_leads):
     """Save raw and fancy leads dataframe as .csv. Also save just the IDs in a .txt file"""
 
+    if not os.path.exists('output'):
+        os.mkdir('output')
+
     raw_leads.to_csv('output/raw_leads.csv')
     df_leads.to_csv('output/leads.csv')
     with open('output/leads_id.txt', 'w') as f:
