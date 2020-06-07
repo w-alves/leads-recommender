@@ -21,7 +21,7 @@ There is two alternative ways to use this service. Let's check:
 1. Download the installer
 
    ```
-   [https://w-alves.github.io/assets/LeadsRecommenderInstaller.exe](https://w-alves.github.io/assets/LeadsRecommenderInstaller.exe)
+   https://w-alves.github.io/assets/LeadsRecommenderInstaller.exe
    ```
 
 2. Execute it and choose a directory to extract the files
@@ -41,7 +41,7 @@ Done that, a page will open in our default browser and you can use the applicati
 2. Download market and sample portfolios data and extract it on the project folder.
 
    ```
-   [https://bit.ly/leadsrecommender-data](https://bit.ly/leadsrecommender-data)
+   https://bit.ly/leadsrecommender-data
    ```
 
 3. Copy your portfolio file to the 'portfolios' folder.
