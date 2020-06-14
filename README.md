@@ -21,7 +21,7 @@ There is two alternative ways to use this service. Let's check:
 1. Download the installer
 
    ```
-   https://w-alves.github.io/2019/06/15/leads-recommender.html
+   https://w-alves.github.io/2020/06/14/leads-recommender.html
    ```
 
 2. Execute it and choose a directory to extract the files
